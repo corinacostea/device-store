@@ -2,6 +2,7 @@ package com.device.store.controller;
 
 import com.device.store.DeviceStoreApplication;
 import com.device.store.facade.DeviceAdminFacade;
+import com.device.store.request.PriceRequest;
 import com.device.store.response.DeviceDetailsDto;
 import com.device.store.response.DeviceDetailsUpdateDto;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,8 +22,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
@@ -80,5 +80,18 @@ class DeviceAdminControllerTest {
                 .andExpect(status().isNoContent());
 
         verify(deviceAdminFacade).updateDevice(anyLong(), any(DeviceDetailsUpdateDto.class));
+    }
+
+    @Test
+    void GIVEN_externalId_WHEN_changePrice_THEN_ok() throws Exception {
+        doNothing().when(deviceAdminFacade).updateDevice(anyLong(), any(DeviceDetailsUpdateDto.class));
+        mvc.perform(patch(BASE_API + "/change-price/{externalId}", EXTERNAL_ID)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"finalPrice\": \"4999.50\"," +
+                                "\"referencePrice\": \"8599.50\"}"))
+                .andExpect(status().isNoContent());
+
+        verify(deviceAdminFacade).changePrice(anyLong(), any(PriceRequest.class));
     }
 }

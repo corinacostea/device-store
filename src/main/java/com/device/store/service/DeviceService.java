@@ -5,10 +5,12 @@ import com.device.store.exception.PreconditionFailedException;
 import com.device.store.mapper.DeviceMapper;
 import com.device.store.model.Device;
 import com.device.store.repository.DeviceRepository;
+import com.device.store.request.PriceRequest;
 import com.device.store.response.DeviceDetailsDto;
 import com.device.store.response.DeviceDetailsUpdateDto;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.Validate;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -27,6 +29,7 @@ public class DeviceService {
 
     @Transactional
     public void addDevice(DeviceDetailsDto deviceDetailsDto) {
+        Validate.notNull(deviceDetailsDto, "Device details request is null.");
         if (getOptionalDevice(deviceDetailsDto.getExternalId()).isPresent()) {
             throw new RuntimeException("Device with id " + deviceDetailsDto.getExternalId() + " exists! Please update the device!");
         }
@@ -39,12 +42,20 @@ public class DeviceService {
     public void updateDevice(long externalId, DeviceDetailsUpdateDto deviceDetailsUpdateDto) {
         if (deviceDetailsUpdateDto == null) {
             throw new PreconditionFailedException(
-                    "Could not update device details because is missing. Details: " + deviceDetailsUpdateDto);
+                    "Could not update device because device details is missing. Details: " + deviceDetailsUpdateDto);
         }
         Device device = getDevice(externalId);
         enrichWithUpdatedDetails(device, deviceDetailsUpdateDto);
         device.setStock(getStock(device.getStockNumber()));
         deviceRepository.save(device);
+    }
+
+    @Transactional
+    public void changePrice(long externalId, PriceRequest priceRequest) {
+        Device device = getDevice(externalId);
+        Device patchedDevice = deviceMapper.applyPatchToEntity(priceRequest, device);
+        patchedDevice.setStock(getStock(patchedDevice.getStockNumber()));
+        deviceRepository.save(patchedDevice);
     }
 
     private void enrichWithUpdatedDetails(Device device, DeviceDetailsUpdateDto deviceDetailsDto) {

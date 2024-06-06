@@ -3,6 +3,7 @@ package com.device.store.service;
 import com.device.store.mapper.DeviceMapper;
 import com.device.store.model.Device;
 import com.device.store.repository.DeviceRepository;
+import com.device.store.request.PriceRequest;
 import com.device.store.response.DeviceDetailsDto;
 import com.device.store.response.DeviceDetailsUpdateDto;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.openapitools.jackson.nullable.JsonNullable;
 
 import java.util.Optional;
 
@@ -38,7 +40,7 @@ class DeviceServiceTest {
     private static final Long EXTERNAL_ID = 1234L;
 
     @Test
-    void GUVEN_externalId_WHEN_getDevice_THEN_return_Device() {
+    void GIVEN_externalId_WHEN_getDevice_THEN_return_Device() {
         when(deviceRepository.findByExternalId(EXTERNAL_ID)).thenReturn(Optional.ofNullable(getDevice()));
 
         Device response = deviceService.getDevice(EXTERNAL_ID);
@@ -56,7 +58,7 @@ class DeviceServiceTest {
     }
 
     @Test
-    void GUVEN_DeviceDetailsDto_WHEN_addDevice_THEN_ok() {
+    void GIVEN_DeviceDetailsDto_WHEN_addDevice_THEN_ok() {
         when(deviceRepository.save(any(Device.class))).thenReturn(getDevice());
         when(deviceMapper.getDevice(getDeviceDetailsDto())).thenReturn(getDevice());
 
@@ -66,14 +68,14 @@ class DeviceServiceTest {
     }
 
     @Test
-    void GUVEN_DeviceDetailsDto_WHEN_addDevice_THEN_throw_exception() {
+    void GIVEN_DeviceDetailsDto_WHEN_addDevice_THEN_throw_exception() {
         Exception expectedEx = assertThrows(RuntimeException.class, () ->
                 deviceService.addDevice(null));
         assertEquals("Device details request is null.", expectedEx.getMessage());
     }
 
     @Test
-    void GUVEN_existing_externalId_WHEN_addDevice_THEN_throw_exception() {
+    void GIVEN_existing_externalId_WHEN_addDevice_THEN_throw_exception() {
         when(deviceRepository.findByExternalId(EXTERNAL_ID)).thenReturn(Optional.ofNullable(getDevice()));
 
         Exception expectedEx = assertThrows(RuntimeException.class, () ->
@@ -82,7 +84,7 @@ class DeviceServiceTest {
     }
 
     @Test
-    void GUVEN_DeviceDetailsUpdateDto_and_externalId_WHEN_updateDevice_THEN_ok() {
+    void GGIVEN_DeviceDetailsUpdateDto_and_externalId_WHEN_updateDevice_THEN_ok() {
         Device device = getDevice();
         device.setStockNumber(1);
         device.setStock(Device.Stock.LIMITED_STOCK);
@@ -104,11 +106,32 @@ class DeviceServiceTest {
     }
 
     @Test
-    void GUVEN_DeviceDetailsUpdateDto_and_externalId_WHEN_updateDevice_THEN_throwException() {
-        Long externalId = 1234L;
+    void GIVEN_DeviceDetailsUpdateDto_and_externalId_WHEN_updateDevice_THEN_throwException() {
         Exception expectedEx = assertThrows(RuntimeException.class, () ->
-                deviceService.updateDevice(externalId, null));
+                deviceService.updateDevice(EXTERNAL_ID, null));
         assertEquals("Could not update device because device details is missing. Details: null", expectedEx.getMessage());
+    }
+
+    @Test
+    void GIVEN_PriceRequest_WHEN_changePrice_THEN_ok() {
+        Long externalId = 1234L;
+        Double finalPrice = 7999.50;
+        Double referencePrice = 8599.50;
+        PriceRequest priceRequest = PriceRequest.builder()
+                .finalPrice(JsonNullable.of(finalPrice))
+                .referencePrice(JsonNullable.of(referencePrice))
+                .build();
+        Device savedDevice = getDevice();
+        savedDevice.setFinalPrice(finalPrice);
+        savedDevice.setReferencePrice(referencePrice);
+        when(deviceRepository.findByExternalId(externalId)).thenReturn(Optional.ofNullable(getDevice()));
+        when(deviceMapper.applyPatchToEntity(priceRequest, getDevice())).thenReturn(savedDevice);
+
+        deviceService.changePrice(externalId, priceRequest);
+
+        verify(deviceRepository).findByExternalId(externalId);
+        verify(deviceRepository).save(savedDevice);
+
     }
 
     private Device getDevice() {

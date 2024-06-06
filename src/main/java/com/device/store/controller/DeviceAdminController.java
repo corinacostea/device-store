@@ -1,6 +1,7 @@
 package com.device.store.controller;
 
 import com.device.store.facade.DeviceAdminFacade;
+import com.device.store.request.PriceRequest;
 import com.device.store.response.DeviceDetailsDto;
 import com.device.store.response.DeviceDetailsUpdateDto;
 import lombok.AllArgsConstructor;
@@ -21,7 +22,7 @@ public class DeviceAdminController {
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> addDevice(@RequestBody DeviceDetailsDto deviceDetailsDto) {
         deviceAdminFacade.addDevice(deviceDetailsDto);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping(value = "/update/{externalId}",
@@ -30,7 +31,15 @@ public class DeviceAdminController {
     public ResponseEntity<Void> updateDevice(@PathVariable(name = "externalId") long externalId,
                                              @RequestBody DeviceDetailsUpdateDto deviceDetailsUpdateDto) {
         deviceAdminFacade.updateDevice(externalId, deviceDetailsUpdateDto);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
+    @PatchMapping(value = "/change-price/{externalId}",
+            consumes = APPLICATION_JSON_VALUE,
+            produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> changePrice(@PathVariable(name = "externalId") long externalId,
+                                            @RequestBody PriceRequest priceRequest) {
+        deviceAdminFacade.changePrice(externalId, priceRequest);
+        return ResponseEntity.noContent().build();
+    }
 }

@@ -1,5 +1,6 @@
 package com.device.store.facade;
 
+import com.device.store.request.PriceRequest;
 import com.device.store.response.DeviceDetailsDto;
 import com.device.store.response.DeviceDetailsUpdateDto;
 import com.device.store.service.DeviceService;
@@ -8,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.openapitools.jackson.nullable.JsonNullable;
 
 import static org.mockito.Mockito.*;
 
@@ -24,7 +26,7 @@ class DeviceAdminFacadeTest {
     }
 
     @Test
-    void GUVEN_DeviceDetailsDto_WHEN_addDevice_THEN_ok() {
+    void GIVEN_DeviceDetailsDto_WHEN_addDevice_THEN_ok() {
         doNothing().when(deviceService).addDevice(getDeviceDetailsDto());
 
         deviceAdminFacade.addDevice(getDeviceDetailsDto());
@@ -33,12 +35,26 @@ class DeviceAdminFacadeTest {
     }
 
     @Test
-    void GUVEN_DeviceDetailsUpdateDto_and_externalId_WHEN_updateDevice_THEN_ok() {
+    void GIVEN_DeviceDetailsUpdateDto_and_externalId_WHEN_updateDevice_THEN_ok() {
         doNothing().when(deviceService).updateDevice(123L, getDeviceDetailsUpdateDto());
 
         deviceAdminFacade.updateDevice(123L, getDeviceDetailsUpdateDto());
 
         verify(deviceService).updateDevice(123L, getDeviceDetailsUpdateDto());
+
+    }
+
+    @Test
+    void GIVEN_PriceRequest_and_externalId_WHEN_changePrice_THEN_ok() {
+        PriceRequest priceRequest = PriceRequest.builder()
+                .referencePrice(JsonNullable.of(100.00))
+                .finalPrice(JsonNullable.of(100.00))
+                .build();
+        doNothing().when(deviceService).changePrice(123L, priceRequest);
+
+        deviceAdminFacade.changePrice(123L, priceRequest);
+
+        verify(deviceService).changePrice(123L, priceRequest);
 
     }
 
