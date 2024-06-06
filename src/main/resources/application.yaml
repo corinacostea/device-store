@@ -1,0 +1,20 @@
+server:
+  port: 8082
+
+spring:
+  application.name: device-store
+  datasource:
+    url: jdbc:h2:mem:store
+    username: store
+    password: store
+    driverClassName: org.h2.Driver
+  flyway:
+    url: jdbc:h2:mem:store
+    user: store
+    password: store
+    baseline-on-migrate: true
+  h2:
+    console:
+      enabled: true
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
