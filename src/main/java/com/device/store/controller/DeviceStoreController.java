@@ -2,7 +2,7 @@ package com.device.store.controller;
 
 import com.device.store.facade.DeviceFacade;
 import com.device.store.facade.DeviceOrderFacade;
-import com.device.store.request.DeviceaBuyRequest;
+import com.device.store.request.DeviceBuyRequest;
 import com.device.store.response.DeviceDetailsDto;
 import com.device.store.response.DeviceSummaryDto;
 import com.device.store.response.OrderDetailsDto;
@@ -34,13 +34,13 @@ public class DeviceStoreController {
         return ResponseEntity.ok(deviceFacade.getAllDevices());
     }
 
-    @GetMapping(value = "/buy",
+    @PutMapping(value = "/buy",
             produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<OrderDetailsDto> buyDevice(@RequestBody DeviceaBuyRequest deviceaBuyRequest) {
-        return ResponseEntity.ok(deviceOrderFacade.buyDevice(deviceaBuyRequest));
+    public ResponseEntity<OrderDetailsDto> buyDevice(@RequestBody DeviceBuyRequest deviceBuyRequest) {
+        return ResponseEntity.ok(deviceOrderFacade.buyDevice(deviceBuyRequest));
     }
 
-    @GetMapping(value = "/pay/{orderId}",
+    @PutMapping(value = "/pay/{orderId}",
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<String> payDevice(@PathVariable(name = "orderId") long orderId) {
         return ResponseEntity.ok(deviceOrderFacade.payDevice(orderId));

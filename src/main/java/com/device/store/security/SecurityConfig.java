@@ -40,8 +40,13 @@ public class SecurityConfig {
                         .password(new BCryptPasswordEncoder().encode("password"))
                         .roles("USER")
                         .build();
+        UserDetails admin =
+                User.withUsername("admin")
+                        .password(new BCryptPasswordEncoder().encode("password"))
+                        .roles("ADMIN")
+                        .build();
 
-        return new InMemoryUserDetailsManager(user);
+        return new InMemoryUserDetailsManager(user, admin);
     }
 
     @Bean

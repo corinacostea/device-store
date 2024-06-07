@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class DeviceaBuyRequest {
+public class DeviceBuyRequest {
     private Long customerId;
     private Long externalId;
     private String deliveryAddress;

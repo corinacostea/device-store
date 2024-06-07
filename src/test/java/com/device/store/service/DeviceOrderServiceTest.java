@@ -5,7 +5,7 @@ import com.device.store.model.Device;
 import com.device.store.model.DeviceOrder;
 import com.device.store.properties.DeviceProperties;
 import com.device.store.repository.DeviceOrderRepository;
-import com.device.store.request.DeviceaBuyRequest;
+import com.device.store.request.DeviceBuyRequest;
 import com.device.store.response.OrderDetailsDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -65,9 +65,10 @@ class DeviceOrderServiceTest {
     void GIVEN_orderId_WHEN_payDevice_THEN_return_status() {
         long orderId = 123L;
         DeviceOrder deviceOrder = getDeviceOrder();
-        deviceOrder.setReservationTime(LocalDateTime.now().minusHours(10));
+        deviceOrder.setDevice(getDevice());
+        deviceOrder.setReservationTime(LocalDateTime.now().plusHours(10));
         when(deviceOrderRepository.findById(orderId)).thenReturn(Optional.ofNullable(deviceOrder));
-        when(deviceOrderRepository.save(any(DeviceOrder.class))).thenReturn(getDeviceOrder());
+        when(deviceOrderRepository.save(any(DeviceOrder.class))).thenReturn(deviceOrder);
 
         String response = deviceOrderService.payDevice(orderId);
 
@@ -81,7 +82,7 @@ class DeviceOrderServiceTest {
     void GIVEN_orderId_WHEN_payDevice_THEN_throw_ex() {
         long orderId = 123L;
         DeviceOrder deviceOrder = getDeviceOrder();
-        deviceOrder.setReservationTime(LocalDateTime.now().plusHours(10));
+        deviceOrder.setReservationTime(LocalDateTime.now().minusHours(10));
         when(deviceOrderRepository.findById(orderId)).thenReturn(Optional.ofNullable(deviceOrder));
 
         Exception expectedEx = assertThrows(RuntimeException.class, () ->
@@ -114,8 +115,8 @@ class DeviceOrderServiceTest {
                 .build();
     }
 
-    private DeviceaBuyRequest getDevicePayRequest() {
-        return DeviceaBuyRequest.builder()
+    private DeviceBuyRequest getDevicePayRequest() {
+        return DeviceBuyRequest.builder()
                 .externalId(123L)
                 .customerId(321L)
                 .deliveryAddress("Str.Test")

@@ -12,5 +12,7 @@ import org.springframework.context.annotation.Configuration;
 public class DeviceProperties {
 
     private Integer reservationHours;
+    private Integer deliveryDays;
+    private Double deliveryPrice;
 
 }

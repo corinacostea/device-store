@@ -6,15 +6,18 @@ import com.device.store.model.Device;
 import com.device.store.model.DeviceOrder;
 import com.device.store.properties.DeviceProperties;
 import com.device.store.repository.DeviceOrderRepository;
-import com.device.store.request.DeviceaBuyRequest;
+import com.device.store.request.DeviceBuyRequest;
 import com.device.store.response.OrderDetailsDto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class DeviceOrderService {
 
     private final DeviceService deviceService;
@@ -22,9 +25,9 @@ public class DeviceOrderService {
     private final DeviceOrderRepository deviceOrderRepository;
     private final DeviceProperties deviceProperties;
 
-    public OrderDetailsDto buyDevice(DeviceaBuyRequest deviceaBuyRequest) {
-        Device device = deviceService.getDevice(deviceaBuyRequest.getExternalId());
-        DeviceOrder deviceOrder = deviceStoreMapper.getInitialDeviceOrder(deviceaBuyRequest);
+    public OrderDetailsDto buyDevice(DeviceBuyRequest deviceBuyRequest) {
+        Device device = deviceService.getDevice(deviceBuyRequest.getExternalId());
+        DeviceOrder deviceOrder = deviceStoreMapper.getInitialDeviceOrder(deviceBuyRequest);
         deviceOrder.setDevice(device);
         deviceOrder.setStatus(DeviceOrder.Status.WAITING_FOR_PAYMENT);
         deviceOrder.setReservationTime(LocalDateTime.now().plusHours(deviceProperties.getReservationHours()));
@@ -39,7 +42,7 @@ public class DeviceOrderService {
     }
 
     private void checkReservationTime(DeviceOrder deviceOrder) {
-        if (deviceOrder.getReservationTime().isAfter(LocalDateTime.now())) {
+        if (deviceOrder.getReservationTime().isBefore(LocalDateTime.now())) {
             deviceOrderRepository.delete(deviceOrder);
             throw new RuntimeException("Order has expired at: " + deviceOrder.getReservationTime());
         }
@@ -51,13 +54,18 @@ public class DeviceOrderService {
     }
 
     private String mockPaymentReturnUrlStatus(DeviceOrder deviceOrder) {
-        double transactionId = Math.random();
+        Random rand = new Random();
+        Integer transactionId = rand.nextInt(100 - 1 + 1) + 1;
+        log.info("transactionId is {}", transactionId);
         deviceOrder.setMerchantTransactionId(String.valueOf(transactionId));
         if (transactionId % 2 == 0) {
             deviceOrder.setStatus(DeviceOrder.Status.ORDER_PLACED);
+            deviceOrder.setDeliveryDate(LocalDateTime.now().plusDays(deviceProperties.getDeliveryDays()));
+            deviceOrder.setDeliveryPrice(deviceProperties.getDeliveryPrice());
         } else {
             deviceOrder.setStatus(DeviceOrder.Status.ORDER_FAILED);
         }
+        deviceOrder.getDevice().setStockNumber(deviceOrder.getDevice().getStockNumber() - 1);
         deviceOrderRepository.save(deviceOrder);
         return deviceOrder.getStatus().name();
     }

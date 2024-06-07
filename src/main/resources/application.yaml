@@ -22,3 +22,5 @@ spring:
 app:
   device:
     reservation-hours: 12
+    delivery-days: 2
+    delivery-price: 19.99

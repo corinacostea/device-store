@@ -4,7 +4,7 @@ import com.device.store.DeviceStoreApplication;
 import com.device.store.facade.DeviceFacade;
 import com.device.store.facade.DeviceOrderFacade;
 import com.device.store.model.DeviceOrder;
-import com.device.store.request.DeviceaBuyRequest;
+import com.device.store.request.DeviceBuyRequest;
 import com.device.store.response.DeviceDetailsDto;
 import com.device.store.response.DeviceSummaryDto;
 import com.device.store.response.OrderDetailsDto;
@@ -27,6 +27,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Mockito.*;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -94,7 +95,7 @@ class DeviceStoreControllerTest {
         OrderDetailsDto order = getOrderDetailsDto();
         when(deviceOrderFacade.buyDevice(getDevicePayRequest())).thenReturn(order);
 
-        mvc.perform(get(BASE_API + "/buy")
+        mvc.perform(put(BASE_API + "/buy")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"externalId\": \"123\"," +
@@ -121,7 +122,7 @@ class DeviceStoreControllerTest {
     void GIVEN_orderId_WHEN_payDevice_THEN_ok() throws Exception {
         when(deviceOrderFacade.payDevice(anyLong())).thenReturn(DeviceOrder.Status.ORDER_PLACED.name());
 
-        mvc.perform(get(BASE_API + "/pay/{orderId}", 789)
+        mvc.perform(put(BASE_API + "/pay/{orderId}", 789)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -154,8 +155,8 @@ class DeviceStoreControllerTest {
                 .build();
     }
 
-    private DeviceaBuyRequest getDevicePayRequest() {
-        return DeviceaBuyRequest.builder()
+    private DeviceBuyRequest getDevicePayRequest() {
+        return DeviceBuyRequest.builder()
                 .externalId(EXTERNAL_ID)
                 .customerId(321L)
                 .deliveryAddress("Str.Test")

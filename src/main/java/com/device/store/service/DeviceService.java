@@ -11,6 +11,7 @@ import com.device.store.response.DeviceDetailsUpdateDto;
 import com.device.store.response.DeviceSummaryDto;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.Validate;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +21,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class DeviceService {
 
     private final DeviceRepository deviceRepository;
@@ -46,6 +48,7 @@ public class DeviceService {
     public void addDevice(DeviceDetailsDto deviceDetailsDto) {
         Validate.notNull(deviceDetailsDto, "Device details request is null.");
         if (getOptionalDevice(deviceDetailsDto.getExternalId()).isPresent()) {
+            log.debug("DeviceDetailsDto details is: {}", deviceDetailsDto);
             throw new RuntimeException("Device with id " + deviceDetailsDto.getExternalId() + " exists! Please update the device!");
         }
         Device device = deviceMapper.getDevice(deviceDetailsDto);
@@ -55,6 +58,7 @@ public class DeviceService {
 
     @Transactional
     public void updateDevice(long externalId, DeviceDetailsUpdateDto deviceDetailsUpdateDto) {
+        log.debug("DeviceDetailsUpdateDto details is: {}", deviceDetailsUpdateDto);
         if (deviceDetailsUpdateDto == null) {
             throw new PreconditionFailedException(
                     "Could not update device because device details is missing. Details: " + deviceDetailsUpdateDto);
@@ -68,6 +72,10 @@ public class DeviceService {
     @Transactional
     public void changePrice(long externalId, PriceRequest priceRequest) {
         Device device = getDevice(externalId);
+        if (priceRequest.getFinalPrice().get() == 0 || priceRequest.getFinalPrice().get() == 0) {
+            throw new PreconditionFailedException(
+                    "Could not update device price to 0");
+        }
         Device patchedDevice = deviceMapper.applyPatchToEntity(priceRequest, device);
         patchedDevice.setStock(getStock(patchedDevice.getStockNumber()));
         deviceRepository.save(patchedDevice);

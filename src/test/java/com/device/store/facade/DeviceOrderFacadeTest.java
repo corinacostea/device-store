@@ -1,7 +1,7 @@
 package com.device.store.facade;
 
 import com.device.store.model.DeviceOrder;
-import com.device.store.request.DeviceaBuyRequest;
+import com.device.store.request.DeviceBuyRequest;
 import com.device.store.response.OrderDetailsDto;
 import com.device.store.service.DeviceOrderService;
 import org.junit.jupiter.api.BeforeEach;
@@ -61,8 +61,8 @@ class DeviceOrderFacadeTest {
                 .build();
     }
 
-    private DeviceaBuyRequest getDevicePayRequest() {
-        return DeviceaBuyRequest.builder()
+    private DeviceBuyRequest getDevicePayRequest() {
+        return DeviceBuyRequest.builder()
                 .externalId(123L)
                 .customerId(321L)
                 .deliveryAddress("Str.Test")

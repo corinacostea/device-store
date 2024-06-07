@@ -38,7 +38,7 @@ public class DeviceOrder extends BaseEntity{
     private String deliveryDetails;
 
     @Column(name = "delivery_price")
-    private BigDecimal deliveryPrice;
+    private Double deliveryPrice;
 
     @Column(name = "merchant_transaction_id")
     private String merchantTransactionId;

@@ -1,20 +1,20 @@
 package com.device.store.mapper;
 
 import com.device.store.model.DeviceOrder;
-import com.device.store.request.DeviceaBuyRequest;
+import com.device.store.request.DeviceBuyRequest;
 import com.device.store.response.OrderDetailsDto;
 import org.springframework.stereotype.Component;
 
 @Component
 public class DeviceStoreMapper {
 
-    public DeviceOrder getInitialDeviceOrder(DeviceaBuyRequest deviceaBuyRequest) {
+    public DeviceOrder getInitialDeviceOrder(DeviceBuyRequest deviceBuyRequest) {
         return DeviceOrder.builder()
-                .customerId(deviceaBuyRequest.getCustomerId())
-                .deliveryAddress(deviceaBuyRequest.getDeliveryAddress())
-                .deliveryDetails(deviceaBuyRequest.getDeliveryDetails())
-                .deliveryPerson(deviceaBuyRequest.getDeliveryPerson())
-                .deliveryPhone(deviceaBuyRequest.getDeliveryPhone())
+                .customerId(deviceBuyRequest.getCustomerId())
+                .deliveryAddress(deviceBuyRequest.getDeliveryAddress())
+                .deliveryDetails(deviceBuyRequest.getDeliveryDetails())
+                .deliveryPerson(deviceBuyRequest.getDeliveryPerson())
+                .deliveryPhone(deviceBuyRequest.getDeliveryPhone())
                 .build();
     }
 
