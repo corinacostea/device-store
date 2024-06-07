@@ -6,6 +6,7 @@ import com.device.store.repository.DeviceRepository;
 import com.device.store.request.PriceRequest;
 import com.device.store.response.DeviceDetailsDto;
 import com.device.store.response.DeviceDetailsUpdateDto;
+import com.device.store.response.DeviceSummaryDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -13,12 +14,13 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.openapitools.jackson.nullable.JsonNullable;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class DeviceServiceTest {
 
@@ -55,6 +57,44 @@ class DeviceServiceTest {
         assertEquals(5, response.getStockNumber());
         assertEquals("asdfghjkl.png", response.getThumbnail());
         verify(deviceRepository).findByExternalId(EXTERNAL_ID);
+    }
+
+    @Test
+    void GIVEN_noParam_WHEN_getAllDevicesDetails_THEN_return_DeviceSummaryDtoList() {
+        when(deviceRepository.findAll()).thenReturn(Collections.singletonList(getDevice()));
+        when(deviceMapper.getDeviceSummary(getDevice())).thenReturn(getDeviceSummaryDto());
+
+        List<DeviceSummaryDto> response = deviceService.getAllDevicesDetails();
+
+        assertNotNull(response);
+        assertEquals("iPhone 15PRO", response.get(0).getName());
+        assertEquals(4999.50, response.get(0).getFinalPrice());
+        assertEquals(8599.50, response.get(0).getReferencePrice());
+        assertEquals("asdfghjkl.png", response.get(0).getThumbnail());
+        verify(deviceRepository).findAll();
+        verify(deviceMapper).getDeviceSummary(getDevice());
+        verifyNoMoreInteractions(deviceRepository, deviceMapper);
+    }
+
+    @Test
+    void GIVEN_externalId_WHEN_getDeviceDetails_THEN_return_DeviceDetailsDto() {
+        when(deviceRepository.findByExternalId(EXTERNAL_ID)).thenReturn(Optional.ofNullable(getDevice()));
+        when(deviceMapper.getDeviceDetails(getDevice())).thenReturn(getDeviceDetailsDto());
+
+        DeviceDetailsDto response = deviceService.getDeviceDetails(EXTERNAL_ID);
+
+        assertNotNull(response);
+        assertEquals(Device.Category.PHONES.name(), response.getCategory());
+        assertEquals(EXTERNAL_ID, response.getExternalId());
+        assertEquals("iPhone 15PRO", response.getName());
+        assertEquals("eSim, black", response.getDetails());
+        assertEquals(4999.50, response.getFinalPrice());
+        assertEquals(8599.50, response.getReferencePrice());
+        assertEquals(5, response.getStockNumber());
+        assertEquals("asdfghjkl.png", response.getThumbnail());
+        verify(deviceRepository).findByExternalId(EXTERNAL_ID);
+        verify(deviceMapper).getDeviceDetails(getDevice());
+        verifyNoMoreInteractions(deviceRepository, deviceMapper);
     }
 
     @Test
@@ -157,6 +197,15 @@ class DeviceServiceTest {
                 .referencePrice(8599.50)
                 .thumbnail("asdfghjkl.png")
                 .stockNumber(5)
+                .build();
+    }
+
+    private DeviceSummaryDto getDeviceSummaryDto() {
+        return DeviceSummaryDto.builder()
+                .name("iPhone 15PRO")
+                .finalPrice(4999.50)
+                .referencePrice(8599.50)
+                .thumbnail("asdfghjkl.png")
                 .build();
     }
 }

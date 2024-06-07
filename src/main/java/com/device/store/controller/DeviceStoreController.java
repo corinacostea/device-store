@@ -2,7 +2,7 @@ package com.device.store.controller;
 
 import com.device.store.facade.DeviceFacade;
 import com.device.store.facade.DeviceOrderFacade;
-import com.device.store.request.DevicePayRequest;
+import com.device.store.request.DeviceaBuyRequest;
 import com.device.store.response.DeviceDetailsDto;
 import com.device.store.response.DeviceSummaryDto;
 import com.device.store.response.OrderDetailsDto;
@@ -36,8 +36,8 @@ public class DeviceStoreController {
 
     @GetMapping(value = "/buy",
             produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<OrderDetailsDto> buyDevice(@RequestBody DevicePayRequest devicePayRequest) {
-        return ResponseEntity.ok(deviceOrderFacade.buyDevice(devicePayRequest));
+    public ResponseEntity<OrderDetailsDto> buyDevice(@RequestBody DeviceaBuyRequest deviceaBuyRequest) {
+        return ResponseEntity.ok(deviceOrderFacade.buyDevice(deviceaBuyRequest));
     }
 
 }
