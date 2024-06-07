@@ -8,11 +8,14 @@ import com.device.store.repository.DeviceRepository;
 import com.device.store.request.PriceRequest;
 import com.device.store.response.DeviceDetailsDto;
 import com.device.store.response.DeviceDetailsUpdateDto;
+import com.device.store.response.DeviceSummaryDto;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.Validate;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -25,6 +28,18 @@ public class DeviceService {
     public Device getDevice(long externalId) {
         return deviceRepository.findByExternalId(externalId)
                 .orElseThrow(() -> new NotFoundException("Device with id " + externalId + " not found!"));
+    }
+
+    public DeviceDetailsDto getDeviceDetails(long externalId) {
+        return deviceMapper.getDeviceDetails(getDevice(externalId));
+    }
+
+    public List<DeviceSummaryDto> getAllDevicesDetails() {
+        return getAllDevices()
+                .stream()
+                .sorted(Comparator.comparing(Device::getCreationDate).reversed())
+                .map(deviceMapper::getDeviceSummary)
+                .toList();
     }
 
     @Transactional
@@ -69,6 +84,10 @@ public class DeviceService {
 
     private Optional<Device> getOptionalDevice(long externalId) {
         return deviceRepository.findByExternalId(externalId);
+    }
+
+    private List<Device> getAllDevices() {
+        return deviceRepository.findAll();
     }
 
     private Device.Stock getStock(Integer stockNumber) {
