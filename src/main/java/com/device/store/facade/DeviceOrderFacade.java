@@ -14,4 +14,8 @@ public class DeviceOrderFacade {
     public OrderDetailsDto buyDevice(DeviceaBuyRequest deviceaBuyRequest) {
         return deviceOrderService.buyDevice(deviceaBuyRequest);
     }
+
+    public String payDevice(long orderId) {
+        return deviceOrderService.payDevice(orderId);
+    }
 }
