@@ -3,6 +3,7 @@ package com.device.store.controller;
 import com.device.store.DeviceStoreApplication;
 import com.device.store.facade.DeviceFacade;
 import com.device.store.facade.DeviceOrderFacade;
+import com.device.store.model.DeviceOrder;
 import com.device.store.request.DeviceaBuyRequest;
 import com.device.store.response.DeviceDetailsDto;
 import com.device.store.response.DeviceSummaryDto;
@@ -114,6 +115,20 @@ class DeviceStoreControllerTest {
                 .andExpect(jsonPath("$.deliveryDetails", is(order.getDeliveryDetails())));
 
         verify(deviceOrderFacade).buyDevice(getDevicePayRequest());
+    }
+
+    @Test
+    void GIVEN_orderId_WHEN_payDevice_THEN_ok() throws Exception {
+        when(deviceOrderFacade.payDevice(anyLong())).thenReturn(DeviceOrder.Status.ORDER_PLACED.name());
+
+        mvc.perform(get(BASE_API + "/pay/{orderId}", 789)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", notNullValue()))
+                .andExpect(jsonPath("$", is(DeviceOrder.Status.ORDER_PLACED.name())));
+
+        verify(deviceOrderFacade).payDevice(anyLong());
     }
 
 

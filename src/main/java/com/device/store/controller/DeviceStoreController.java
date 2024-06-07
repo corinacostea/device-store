@@ -40,7 +40,7 @@ public class DeviceStoreController {
         return ResponseEntity.ok(deviceOrderFacade.buyDevice(deviceaBuyRequest));
     }
 
-    @GetMapping(value = "/pay/{externalId}",
+    @GetMapping(value = "/pay/{orderId}",
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<String> payDevice(@PathVariable(name = "orderId") long orderId) {
         return ResponseEntity.ok(deviceOrderFacade.payDevice(orderId));

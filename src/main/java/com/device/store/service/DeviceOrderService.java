@@ -39,9 +39,9 @@ public class DeviceOrderService {
     }
 
     private void checkReservationTime(DeviceOrder deviceOrder) {
-        if (deviceOrder.getReservationTime().isBefore(LocalDateTime.now())) {
+        if (deviceOrder.getReservationTime().isAfter(LocalDateTime.now())) {
             deviceOrderRepository.delete(deviceOrder);
-            throw new RuntimeException("Order has expired!");
+            throw new RuntimeException("Order has expired at: " + deviceOrder.getReservationTime());
         }
     }
 

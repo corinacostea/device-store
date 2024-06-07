@@ -1,12 +1,10 @@
 package com.device.store.service;
 
-import com.device.store.mapper.DeviceMapper;
 import com.device.store.mapper.DeviceStoreMapper;
 import com.device.store.model.Device;
 import com.device.store.model.DeviceOrder;
 import com.device.store.properties.DeviceProperties;
 import com.device.store.repository.DeviceOrderRepository;
-import com.device.store.repository.DeviceRepository;
 import com.device.store.request.DeviceaBuyRequest;
 import com.device.store.response.OrderDetailsDto;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,6 +12,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -58,6 +59,36 @@ class DeviceOrderServiceTest {
         verify(deviceStoreMapper).getOrderDetailsDto(any(DeviceOrder.class));
         verifyNoMoreInteractions(deviceService, deviceOrderRepository, deviceStoreMapper);
 
+    }
+
+    @Test
+    void GIVEN_orderId_WHEN_payDevice_THEN_return_status() {
+        long orderId = 123L;
+        DeviceOrder deviceOrder = getDeviceOrder();
+        deviceOrder.setReservationTime(LocalDateTime.now().minusHours(10));
+        when(deviceOrderRepository.findById(orderId)).thenReturn(Optional.ofNullable(deviceOrder));
+        when(deviceOrderRepository.save(any(DeviceOrder.class))).thenReturn(getDeviceOrder());
+
+        String response = deviceOrderService.payDevice(orderId);
+
+        assertNotNull(response);
+        verify(deviceOrderRepository).findById(anyLong());
+        verify(deviceOrderRepository).save(any(DeviceOrder.class));
+        verifyNoMoreInteractions(deviceService, deviceOrderRepository, deviceStoreMapper);
+    }
+
+    @Test
+    void GIVEN_orderId_WHEN_payDevice_THEN_throw_ex() {
+        long orderId = 123L;
+        DeviceOrder deviceOrder = getDeviceOrder();
+        deviceOrder.setReservationTime(LocalDateTime.now().plusHours(10));
+        when(deviceOrderRepository.findById(orderId)).thenReturn(Optional.ofNullable(deviceOrder));
+
+        Exception expectedEx = assertThrows(RuntimeException.class, () ->
+                deviceOrderService.payDevice(orderId));
+        assertEquals("Order has expired at: " + deviceOrder.getReservationTime(), expectedEx.getMessage());
+
+        verify(deviceOrderRepository).findById(anyLong());
     }
 
     private Device getDevice() {
